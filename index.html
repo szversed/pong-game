@@ -3,67 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pong Game</title>
+    <title>Calculator</title>
     <style>
         body {
+            font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: black;
-            color: white;
-            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
         }
-        canvas {
-            border: 1px solid white;
+        .calculator {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            background-color: #fff;
+        }
+        .display {
+            width: 100%;
+            height: 40px;
+            font-size: 2em;
+            text-align: right;
+            margin-bottom: 10px;
+        }
+        .button {
+            width: 23%;
+            height: 50px;
+            font-size: 1.5em;
+            margin: 1%;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <h1>Pong Game</h1>
-    <canvas id="pong" width="800" height="400"></canvas>
+    <div class="calculator">
+        <input type="text" class="display" id="display" disabled>
+        <div>
+            <button class="button" onclick="clearDisplay()">C</button>
+            <button class="button" onclick="appendNumber('7')">7</button>
+            <button class="button" onclick="appendNumber('8')">8</button>
+            <button class="button" onclick="appendNumber('9')">9</button>
+            <button class="button" onclick="setOperation('/')">/</button>
+        </div>
+        <div>
+            <button class="button" onclick="appendNumber('4')">4</button>
+            <button class="button" onclick="appendNumber('5')">5</button>
+            <button class="button" onclick="appendNumber('6')">6</button>
+            <button class="button" onclick="setOperation('*')">*</button>
+        </div>
+        <div>
+            <button class="button" onclick="appendNumber('1')">1</button>
+            <button class="button" onclick="appendNumber('2')">2</button>
+            <button class="button" onclick="appendNumber('3')">3</button>
+            <button class="button" onclick="setOperation('-')">-</button>
+        </div>
+        <div>
+            <button class="button" onclick="appendNumber('0')">0</button>
+            <button class="button" onclick="calculateResult()">=</button>
+            <button class="button" onclick="setOperation('+')">+</button>
+        </div>
+    </div>
+
     <script>
-        const canvas = document.getElementById('pong');
-        const context = canvas.getContext('2d');
+        let currentInput = '';
+        let operation = '';
+        let firstOperand = null;
 
-        // Create the pong paddle and ball
-        const paddleWidth = 10, paddleHeight = 100;
-        const ballSize = 10;
-        let player = { x: 0, y: canvas.height / 2 - paddleHeight / 2, width: paddleWidth, height: paddleHeight }; 
-        let ball = { x: canvas.width / 2, y: canvas.height / 2, size: ballSize, speedX: 5, speedY: 5 };
-
-        function draw() {
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            // Draw paddles
-            context.fillStyle = 'white';
-            context.fillRect(player.x, player.y, player.width, player.height);
-            // Draw ball
-            context.beginPath();
-            context.arc(ball.x, ball.y, ball.size, 0, Math.PI * 2);
-            context.fill();
-            context.closePath();
+        function appendNumber(number) {
+            currentInput += number;
+            updateDisplay();
         }
 
-        function update() {
-            ball.x += ball.speedX;
-            ball.y += ball.speedY;
-            if (ball.y + ball.size > canvas.height || ball.y - ball.size < 0) {
-                ball.speedY = -ball.speedY;
+        function setOperation(op) {
+            if (currentInput === '') return;
+            if (firstOperand === null) {
+                firstOperand = parseFloat(currentInput);
+            } else {
+                calculateResult();
             }
-            if (ball.x + ball.size > canvas.width || ball.x - ball.size < 0) {
-                ball.speedX = -ball.speedX;
+            operation = op;
+            currentInput = '';
+        }
+
+        function calculateResult() {
+            if (currentInput === '' || operation === '' || firstOperand === null) return;
+            const secondOperand = parseFloat(currentInput);
+            switch (operation) {
+                case '+':
+                    currentInput = (firstOperand + secondOperand).toString();
+                    break;
+                case '-':
+                    currentInput = (firstOperand - secondOperand).toString();
+                    break;
+                case '*':
+                    currentInput = (firstOperand * secondOperand).toString();
+                    break;
+                case '/':
+                    currentInput = (firstOperand / secondOperand).toString();
+                    break;
             }
+            operation = '';
+            firstOperand = null;
+            updateDisplay();
         }
 
-        function gameLoop() {
-            draw();
-            update();
-            requestAnimationFrame(gameLoop);
+        function clearDisplay() {
+            currentInput = '';
+            operation = '';
+            firstOperand = null;
+            updateDisplay();
         }
 
-        // Keyboard controls, etc.
-
-        gameLoop();
+        function updateDisplay() {
+            document.getElementById('display').value = currentInput;
+        }
     </script>
 </body>
 </html>
